@@ -112,6 +112,8 @@
         #print-report { display: none; }
         #print-report h1 { font-size: 1.4rem; margin-bottom: 4px; }
         #print-report p { color: #555; margin-top: 0; margin-bottom: 16px; }
+        /* Seitenumbruch: markierter Abschnitt beginnt im PDF auf einer neuen Seite */
+        #print-report h2.seite-neu { page-break-before: always; break-before: page; }
 
         /* Ergebnisse im Bericht: je zwei Runden nebeneinander, damit der
            Ausdruck weniger Seiten benoetigt. Aeusseres Raster ohne Rahmen,
@@ -154,8 +156,6 @@
         .save-load-btn.danger { background-color: #c0392b; }
         .save-load-btn.danger:hover { background-color: #922b21; }
         .save-load-status { font-size: 0.8rem; color: #7f8c8d; margin-top: 4px; min-height: 1em; }
-        .save-load-section-label { font-size: 0.85rem; font-weight: 600; color: #495057; margin: 10px 0 4px 0; }
-        .save-load-section-label:first-child { margin-top: 0; }
 
         /* Dauerhafte Anzeige zur automatischen Sicherung */
         .autosave-status { font-size: 0.78rem; color: #7f8c8d; margin-top: 8px; padding-top: 8px; border-top: 1px solid #e9ecef; line-height: 1.4; }
@@ -287,7 +287,6 @@
                 </div>
                 <div class="card">
                     <h2>Speichern &amp; Laden</h2>
-                    <div class="save-load-section-label">Datei</div>
                     <div class="save-load-row">
                         <input type="text" id="tournament-name" placeholder="Turniername" maxlength="60">
                     </div>
@@ -1432,7 +1431,9 @@
     // Druckvorgangs auf "Turnierergebnis vom TT.MM.JJJJ" gesetzt und danach zurueckgesetzt.
     function printReport() {
         const originalTitle = document.title;
-        document.title = `Turnierergebnis vom ${formatDateDE(new Date())}`;
+        // Disziplin und Teilnehmerzahl an den vom Druck-Dialog vorgeschlagenen Dateinamen anhaengen
+        const pdfDisziplin = document.getElementById('game-type').value;
+        document.title = `Turnierergebnis vom ${formatDateDE(new Date())} ${pdfDisziplin} ${playerCount} Teilnehmer`;
 
         const restore = () => {
             document.title = originalTitle;
@@ -1512,7 +1513,7 @@
                 <tbody>${rankingRows}</tbody>
             </table>
             ${skNote}
-            <h2>Ergebnisse</h2>
+            <h2 class="seite-neu">Ergebnisse</h2>
             <table class="rounds-grid">
                 <tbody>${scheduleHtml}</tbody>
             </table>
