@@ -197,14 +197,18 @@
             border: 1.5px solid #16a085; color: #16a085;
             font-size: 12px; font-weight: bold; line-height: 1;
             cursor: help; user-select: none; background: #fff;
-            vertical-align: middle; margin-left: 6px;
+            /* Icon haengt erhoeht (oben rechts) am letzten Wort */
+            margin-left: 3px; position: relative; top: -0.5em;
         }
         .help-icon:hover, .help-icon:focus { background: #16a085; color: #fff; outline: none; }
+        /* Haelt letztes Wort + Icon zusammen, damit das Icon nie allein in die naechste Zeile umbricht */
+        .help-glue { white-space: nowrap; }
         /* Tooltip-Text: versteckt, wird per JS als fixed positioniert und ist damit
            unabhaengig vom Scrollbereich der Spalte (wird nicht abgeschnitten) */
         .help-body {
             display: none; position: fixed; z-index: 9999;
             max-width: 300px; background: #2c3e50; color: #fff;
+            white-space: normal; /* setzt geerbtes nowrap des help-glue-Wrappers zurueck */
             font-size: 0.82rem; font-weight: normal; line-height: 1.45;
             padding: 10px 12px; border-radius: 6px;
             box-shadow: 0 4px 14px rgba(0,0,0,0.25);
@@ -277,7 +281,7 @@
                     <div id="player-inputs-container"></div>
                 </div>
                 <div class="card">
-                    <h2>2. Live-Rangliste <span class="help-icon" tabindex="0" role="button" aria-label="Erklärung anzeigen">?<span class="help-body"><b>Reihenfolge bei Gleichheit:</b><br>1. Punkte (Siege) ➔ 2. Satz-Differenz ➔ 3. Direkter Vergleich (H2H) ➔ 4. Stichkampf (SK, manuell durch Turnierleitung)<br>Ein Spiel gilt erst als beendet, wenn ein Spieler die eingestellte Race-to-Vorgabe an Sätzen erreicht hat.<br>Der Stichkampf (Reihenfolge durch die Turnierleitung festlegen) wird erst angeboten, wenn alle Spiele beendet sind.</span></span></h2>
+                    <h2>2. <span class="help-glue">Live-Rangliste<span class="help-icon" tabindex="0" role="button" aria-label="Erklärung anzeigen">?<span class="help-body"><b>Reihenfolge bei Gleichheit:</b><br>1. Punkte (Siege) ➔ 2. Satz-Differenz ➔ 3. Direkter Vergleich (H2H) ➔ 4. Stichkampf (SK, manuell durch Turnierleitung)<br>Ein Spiel gilt erst als beendet, wenn ein Spieler die eingestellte Race-to-Vorgabe an Sätzen erreicht hat.<br>Der Stichkampf (Reihenfolge durch die Turnierleitung festlegen) wird erst angeboten, wenn alle Spiele beendet sind.</span></span></span></h2>
                     <div id="shootout-info" class="shootout-hint" style="display:none;"></div>
                     <table class="table-style">
                         <thead><tr><th>Platz</th><th>Name</th><th>Pkt.</th><th>Sum.</th><th>Satz-Diff.</th></tr></thead>
@@ -291,14 +295,14 @@
                         <input type="text" id="tournament-name" placeholder="Turniername" maxlength="60">
                     </div>
                     <div class="save-load-row">
-                        <button id="btn-export-file" class="save-load-btn" title="Turnierstand als JSON-Datei herunterladen">Als Datei exportieren</button>
-                        <button id="btn-import-file" class="save-load-btn secondary" title="Turnierstand aus JSON-Datei laden">Aus Datei importieren</button>
+                        <button id="btn-export-file" class="save-load-btn" title="Turnierstand als JSON-Datei herunterladen">Exportieren</button>
+                        <button id="btn-import-file" class="save-load-btn secondary" title="Turnierstand aus JSON-Datei laden">Importieren</button>
                         <input type="file" id="import-file-input" accept="application/json,.json" style="display:none;">
                     </div>
                     <div id="save-load-status" class="save-load-status"></div>
                     <div id="autosave-status" class="autosave-status"></div>
 
-                    <h2 class="restore-heading">Restore-Punkte (letzte 5)<span class="help-icon" tabindex="0" role="button" aria-label="Erklärung anzeigen">?<span class="help-body"><b>Automatische Sicherung vor riskanten Aktionen.</b><br>Vor jedem Zurücksetzen, vor dem Ändern der Teilnehmerzahl oder der Race-to-Vorgabe sowie vor jedem Laden und Importieren wird der aktuelle Stand gesichert. Die letzten fünf Sicherungen stehen hier zum Wiederherstellen bereit und bleiben auch nach dem Schließen der Datei erhalten.</span></span></h2>
+                    <h2 class="restore-heading">Restore-Punkte <span class="help-glue">(letzte 5)<span class="help-icon" tabindex="0" role="button" aria-label="Erklärung anzeigen">?<span class="help-body"><b>Automatische Sicherung vor riskanten Aktionen.</b><br>Vor jedem Zurücksetzen, vor dem Ändern der Teilnehmerzahl oder der Race-to-Vorgabe sowie vor jedem Laden und Importieren wird der aktuelle Stand gesichert. Die letzten fünf Sicherungen stehen hier zum Wiederherstellen bereit und bleiben auch nach dem Schließen der Datei erhalten.</span></span></span></h2>
                     <div id="restore-list"></div>
                     <div class="save-load-row" style="margin-top:8px;">
                         <button type="button" id="btn-restore-clear" class="save-load-btn secondary" title="Alle Restore-Punkte löschen">Kette leeren</button>
@@ -333,7 +337,8 @@
 <div id="print-report"></div>
 
 <script>
-    const allNames = ["Sauron", "Kermit", "Hulk", "Gollum", "Grobi", "Dagobert", "Yoda", "Rambo", "Spieler 9", "Spieler 10", "Spieler 11", "Spieler 12"];
+    // Neutrale Platzhalternamen (keine geschuetzten Figurennamen)
+    const allNames = ["Spieler 1", "Spieler 2", "Spieler 3", "Spieler 4", "Spieler 5", "Spieler 6", "Spieler 7", "Spieler 8", "Spieler 9", "Spieler 10", "Spieler 11", "Spieler 12"];
 
     let playerCount = 8;
     let currentNames = [];
